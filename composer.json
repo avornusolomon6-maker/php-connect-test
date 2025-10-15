@@ -1,0 +1,7 @@
+{
+  "name": "avornu/neon-php-connector",
+  "description": "Simple Neon PostgreSQL connection test",
+  "require": {
+    "php": ">=8.0"
+  }
+}
