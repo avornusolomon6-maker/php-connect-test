@@ -1,21 +1,17 @@
 <?php
-$host = getenv('DB_HOST');
-$dbname = getenv('DB_NAME');
-$user = getenv('DB_USER');
-$password = getenv('DB_PASSWORD');
-$port = getenv('DB_PORT');
+header("Content-Type: application/json");
 
-$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password sslmode=require";
+$host = "ep-muddy-fire-a8ypvpo1-pooler.eastus2.azure.neon.tech";
+$db   = "assessment";
+$user = "neondb_owner";
+$pass = "npg_L39rfXYTGupW";
 
-try {
-    $conn = pg_connect($conn_string);
-    if ($conn) {
-        echo "✅ Connected successfully to Neon PostgreSQL!";
-    } else {
-        throw new Exception("Connection failed.");
-    }
-} catch (Exception $e) {
-    echo "❌ Error: " . $e->getMessage();
+$conn = pg_connect("host=$host dbname=$db user=$user password=$pass sslmode=require");
+
+if (!$conn) {
+    echo json_encode(["status" => "error", "message" => "Connection failed: " . pg_last_error()]);
+} else {
+    echo json_encode(["status" => "success", "message" => "Connected successfully to Neon PostgreSQL"]);
 }
 ?>
 
