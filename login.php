@@ -1,97 +1,103 @@
 <?php
 header("Content-Type: application/json");
-require_once "connect.php"; // include your Render/Neon connection
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(["status" => "error", "message" => "Invalid request"]);
-    exit;
-}
-
-$username = strtolower(trim($_POST['username'] ?? ''));
-$password = $_POST['password'] ?? '';
-$school = $_POST['school'] ?? '';
-$usertype = $_POST['usertype'] ?? '';
-$sessionId = $_POST['sessionId'] ?? '';
-
-if (empty($username) || empty($password) || empty($school) || empty($usertype)) {
-    echo json_encode(["status" => "error", "message" => "Missing required fields"]);
-    exit;
-}
+require_once 'connect.php'; // include the connection file
 
 try {
-    // 1️⃣ Fetch user details
-    $stmt = $conn->prepare("SELECT password, failed_attempts, locked_until, status, usertype, school 
+    // Get JSON input from Android
+    $input = json_decode(file_get_contents("php://input"), true);
+    $username = strtolower(trim($input['staff_name']));
+    $password = $input['password'];
+    $school = trim($input['school']);
+    $usertype = trim($input['usertype']);
+    $session_id = $input['session_id']; // just stored for record
+
+    if (!$username || !$password || !$school || !$usertype) {
+        echo json_encode(["status" => "error", "message" => "All fields are required."]);
+        exit;
+    }
+
+    // Fetch staff record
+    $stmt = $conn->prepare("SELECT password, school, usertype, status, failed_attempts, locked_until 
                             FROM staffs WHERE LOWER(staff_name) = ?");
     $stmt->execute([$username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $staff = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user) {
-        echo json_encode(["status" => "error", "message" => "User not found"]);
+    if (!$staff) {
+        echo json_encode(["status" => "error", "message" => "User not found."]);
         exit;
     }
 
-    // 2️⃣ Check user type
-    if (strtolower($user['usertype']) !== strtolower($usertype)) {
-        $conn->prepare("INSERT INTO logs (username, user_type, actions, description)
-                        VALUES (?, ?, 'Unauthorized Access', 'Invalid account type')")
-              ->execute([$username, $usertype]);
-        echo json_encode(["status" => "error", "message" => "Access denied due to invalid user type"]);
+    // Check account type
+    if (strtolower($usertype) !== strtolower($staff['usertype'])) {
+        saveAuditLog($conn, $username, $usertype, "Unauthorized Access", "Access denied due to invalid user account type");
+        echo json_encode(["status" => "error", "message" => "Account access denied. Invalid user account type."]);
         exit;
     }
 
-    // 3️⃣ Check account status
-    if (strtolower($user['status']) !== 'active') {
-        echo json_encode(["status" => "error", "message" => "Account access denied. Contact Admin."]);
+    // Check account status
+    if (strtolower($staff['status']) !== "active") {
+        echo json_encode(["status" => "error", "message" => "Account access denied. Please contact your Admin."]);
         exit;
     }
 
-    // 4️⃣ Check if locked
-    if (!empty($user['locked_until']) && strtotime($user['locked_until']) > time()) {
+    // Check if account is locked
+    if (!empty($staff['locked_until']) && strtotime($staff['locked_until']) > time()) {
         echo json_encode(["status" => "error", "message" => "Account locked. Try again later."]);
         exit;
     }
 
-    // 5️⃣ Validate password + school
-    if (password_verify($password, $user['password']) && strtolower($school) === strtolower($user['school'])) {
+    // Check password
+    if (password_verify($password, $staff['password']) && $school === $staff['school']) {
+        // Reset failed attempts
+        $conn->prepare("UPDATE staffs SET failed_attempts = 0, locked_until = NULL, last_login = NOW() WHERE LOWER(staff_name) = ?")
+             ->execute([$username]);
 
-        // ✅ Successful login — reset failed attempts
-        $conn->prepare("UPDATE staffs SET failed_attempts = 0, locked_until = NULL, 
-                        user_session = ?, last_login = NOW() WHERE LOWER(staff_name) = ?")
-             ->execute([$sessionId, $username]);
+        // Save audit log
+        saveAuditLog($conn, $username, $usertype, "Log In", "User logged in successfully");
 
-        // Log the success
-        $conn->prepare("INSERT INTO logs (username, user_type, actions, description)
-                        VALUES (?, ?, 'Login', 'User successfully logged in')")
-              ->execute([$username, $usertype]);
-
+        // Return success
         echo json_encode(["status" => "success", "message" => "Login successful"]);
         exit;
-
     } else {
-        // ❌ Wrong credentials
-        $failed = $user['failed_attempts'] + 1;
+        // Handle failed attempt
+        $failed_attempts = $staff['failed_attempts'] + 1;
 
-        if ($failed >= 3) {
-            $conn->prepare("UPDATE staffs SET failed_attempts = 3, locked_until = NOW() + INTERVAL '10 minutes'
+        if ($failed_attempts >= 3) {
+            // Lock account for 10 minutes
+            $conn->prepare("UPDATE staffs SET failed_attempts = 3, locked_until = NOW() + INTERVAL '10 minutes' 
                             WHERE LOWER(staff_name) = ?")->execute([$username]);
 
-            // 🔒 Log the lock event
-            $conn->prepare("INSERT INTO logs (username, user_type, actions, description)
-                            VALUES (?, ?, 'Account Lock', 'Account locked due to 3 failed attempts')")
-                  ->execute([$username, $usertype]);
+            saveAuditLog($conn, $username, $usertype, "Log In", "Account locked due to multiple failed attempts");
 
-            echo json_encode(["status" => "error", "message" => "Account locked. Try again in 10 minutes."]);
+            echo json_encode(["status" => "error", "message" => "Account locked due to multiple failed attempts. Try again in 10 minutes."]);
+            exit;
         } else {
+            // Increment failed attempts
             $conn->prepare("UPDATE staffs SET failed_attempts = ? WHERE LOWER(staff_name) = ?")
-                 ->execute([$failed, $username]);
+                 ->execute([$failed_attempts, $username]);
 
-            echo json_encode(["status" => "error", "message" => "Invalid credentials. Attempt $failed of 3."]);
+            
+            echo json_encode(["status" => "error", "message" => "Invalid credentials. Attempt $failed_attempts of 3."]);
+            exit;
         }
-        exit;
     }
 
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => "Server error: " . $e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "Database or server error: " . $e->getMessage()]);
     exit;
+}
+
+
+// -------------------------------------------------
+// AUDIT LOG FUNCTION
+// -------------------------------------------------
+function saveAuditLog($conn, $staffname, $usertype, $action, $details) {
+    try {
+        $stmt = $conn->prepare("INSERT INTO logs (username, usertype, action, details, timestamp) 
+                                VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$staffname, $usertype, $action, $details]);
+    } catch (Exception $e) {
+        // Silent fail for logs
+    }
 }
 ?>
