@@ -1,17 +1,18 @@
-<?php
-header("Content-Type: application/json");
 
-$host = "ep-muddy-fire-a8ypvpo1-pooler.eastus2.azure.neon.tech";
-$db   = "assessment";
+<?php
+$host = "ep-muddy-fire-a8ypvpo1.ap-southeast-1.aws.neon.tech"; // your Neon host (without https://)
+$dbname = "assessment";
 $user = "neondb_owner";
 $pass = "npg_L39rfXYTGupW";
+$sslmode = "require";
 
-$conn = pg_connect("host=$host dbname=$db user=$user password=$pass sslmode=require");
-
-if (!$conn) {
-    echo json_encode(["status" => "error", "message" => "Connection failed: " . pg_last_error()]);
-} else {
-    echo json_encode(["status" => "success", "message" => "Connected successfully to Neon PostgreSQL"]);
+try {
+    $conn = new PDO("pgsql:host=$host;dbname=$dbname;sslmode=$sslmode", $user, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+     echo "✅ Database connected successfully";
+} catch (PDOException $e) {
+    echo json_encode(["status" => "error", "message" => "Database connection failed: " . $e->getMessage()]);
+    exit;
 }
 ?>
 
