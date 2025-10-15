@@ -1,15 +1,21 @@
-
 <?php
-$host = "ep-muddy-fire-a8ypvpo1-pooler.eastus2.azure.neon.tech";
-$dbname = "assessment";
-$user = "neondb_owner";
-$password = "npg_L39rfXYTGupW";
+$host = getenv('DB_HOST');
+$dbname = getenv('DB_NAME');
+$user = getenv('DB_USER');
+$password = getenv('DB_PASSWORD');
+$port = getenv('DB_PORT');
+
+$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password sslmode=require";
 
 try {
-    $conn = new PDO("pgsql:host=$host;dbname=$dbname;sslmode=require", $user, $password);
-    echo "Connected successfully";
-} catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    $conn = pg_connect($conn_string);
+    if ($conn) {
+        echo "✅ Connected successfully to Neon PostgreSQL!";
+    } else {
+        throw new Exception("Connection failed.");
+    }
+} catch (Exception $e) {
+    echo "❌ Error: " . $e->getMessage();
 }
 ?>
 
