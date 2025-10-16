@@ -39,8 +39,8 @@ try {
     $stmt->execute()
        
 } catch (PDOException $e) {
-    echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
+   // echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
 } catch (Exception $ex) {
-    echo json_encode(["status" => "error", "message" => "Unexpected error: " . $ex->getMessage()]);
+   // echo json_encode(["status" => "error", "message" => "Unexpected error: " . $ex->getMessage()]);
 }
 ?>
