@@ -75,7 +75,6 @@ try {
             // Increment failed attempts
             $conn->prepare("UPDATE staffs SET failed_attempts = ? WHERE LOWER(staff_name) = ?")
                  ->execute([$failed_attempts, $username]);
-
             
             echo json_encode(["status" => "error", "message" => "Invalid credentials. Attempt $failed_attempts of 3."]);
             exit;
@@ -93,11 +92,11 @@ try {
 // -------------------------------------------------
 function saveAuditLog($conn, $staffname, $usertype, $action, $details) {
     try {
-        $stmt = $conn->prepare("INSERT INTO logs (username, user_type, actions, description) 
-                                VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO logs (username, user_type, actions, description) VALUES (?, ?, ?, ?)");
         $stmt->execute([$staffname, $usertype, $action, $details]);
     } catch (Exception $e) {
         // Silent fail for logs
+        echo json_encode(["status" => "error", "message" => "Database or server error: " . $e->getMessage()]);
     }
 }
 ?>
