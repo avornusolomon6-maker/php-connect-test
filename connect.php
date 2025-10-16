@@ -8,7 +8,7 @@ $sslmode = "require";
 try {
     $conn = new PDO("pgsql:host=$host;dbname=$dbname;sslmode=$sslmode", $user, $pass);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-     echo "Connected successfully to Neon!";
+     //echo "Connected successfully to Neon!";
 } catch (PDOException $e) {
     echo json_encode([
         "status" => "error",
