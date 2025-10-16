@@ -9,7 +9,7 @@ try {
     $password = $input['password'];
     $school = trim($input['school']);
     $usertype = trim($input['usertype']);
-    $session_id = $input['session_id']; // just stored for record
+    $sessionId = $input['session_id']; // just stored for record
 
     if (!$username || !$password || !$school || !$usertype) {
         echo json_encode(["status" => "error", "message" => "All fields are required."]);
