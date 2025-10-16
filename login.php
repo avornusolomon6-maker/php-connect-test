@@ -96,7 +96,7 @@ function saveAuditLog($conn, $staffname, $usertype, $action, $details) {
         $stmt->execute([$staffname, $usertype, $action, $details]);
     } catch (Exception $e) {
         // Silent fail for logs
-        echo json_encode(["status" => "error", "message" => "Database or server error: " . $e->getMessage()]);
+       // echo json_encode(["status" => "error", "message" => "Database or server error: " . $e->getMessage()]);
     }
 }
 ?>
