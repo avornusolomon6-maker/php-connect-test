@@ -93,8 +93,8 @@ try {
 // -------------------------------------------------
 function saveAuditLog($conn, $staffname, $usertype, $action, $details) {
     try {
-        $stmt = $conn->prepare("INSERT INTO logs (username, usertype, action, details, timestamp) 
-                                VALUES (?, ?, ?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO logs (username, user_type, actions, description) 
+                                VALUES (?, ?, ?, ?)");
         $stmt->execute([$staffname, $usertype, $action, $details]);
     } catch (Exception $e) {
         // Silent fail for logs
