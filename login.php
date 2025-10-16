@@ -49,8 +49,8 @@ try {
     // Check password
     if (password_verify($password, $staff['password']) && $school === $staff['school']) {
         // Reset failed attempts
-        $conn->prepare("UPDATE staffs SET failed_attempts = 0, locked_until = NULL, last_login = NOW() WHERE LOWER(staff_name) = ?")
-             ->execute([$username]);
+        $conn->prepare("UPDATE staffs SET failed_attempts = 0, locked_until = NULL, user_session = ?, last_login = NOW() WHERE LOWER(staff_name) = LOWER(?)")
+             ->execute([$sessionId, $username]);
 
         // Save audit log
         saveAuditLog($conn, $username, $usertype, "Log In", "User logged in successfully");
