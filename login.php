@@ -53,7 +53,8 @@ try {
              ->execute([$sessionId, $username]);
 
         // Save audit log
-        saveAuditLog($conn, $username, $school . " " . $usertype, "Log In", "User logged in successfully");
+        $combined = $school . " " . $usertype;
+        saveAuditLog($conn, $username, $combined, "Log In", "User logged in successfully");
 
         // Return success
         echo json_encode(["status" => "success", "message" => "Login successful"]);
