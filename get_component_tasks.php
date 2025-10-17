@@ -1,6 +1,6 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
-include "connect.php"; // your connection file
+header('Content-Type: application/json');
+require_once 'connect.php'; // your connection file
 
 if (!isset($_GET['school_label'])) {
     echo json_encode(["error" => "Missing parameter: school_label"]);
@@ -10,24 +10,14 @@ if (!isset($_GET['school_label'])) {
 $school_label = $_GET['school_label'];
 
 try {
-    $stmt = $conn->prepare("SELECT title FROM component_tasks WHERE school_label = ?");
-    $stmt->bind_param("s", $school_label);
+    // Prepare the query using PDO
+    $stmt = $pdo->prepare("SELECT title FROM component_tasks WHERE school_label = :school_label");
+    $stmt->bindParam(':school_label', $school_label, PDO::PARAM_STR);
     $stmt->execute();
-    $result = $stmt->get_result();
 
-    $tasks = [];
-    while ($row = $result->fetch_assoc()) {
-        $tasks[] = $row['title'];
-    }
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (empty($tasks)) {
-        echo json_encode(["message" => "No tasks found for this school"]);
-    } else {
-        echo json_encode($tasks);
-    }
-
-    $stmt->close();
-    $conn->close();
+    echo json_encode($result);
 } catch (Exception $e) {
     echo json_encode(["error" => $e->getMessage()]);
 }
