@@ -1,23 +1,23 @@
 <?php
-header("Content-Type: application/json");
-require_once "connect.php"; // ✅ your existing DB connection file
+header('Content-Type: application/json');
+require_once 'connect.php'; // make sure this defines $conn as a PDO connection
 
-if (isset($_GET['school_label'])) {
-    $school_label = $_GET['school_label'];
+if (!isset($_GET['school_label']) || empty($_GET['school_label'])) {
+    echo json_encode(["error" => "Missing or empty parameter: school_label"]);
+    exit;
+}
 
-    $stmt = $con->prepare("SELECT title FROM component_task WHERE school_label = ?");
-    $stmt->bind_param("s", $school_label);
+$school_label = $_GET['school_label'];
+
+try {
+    $stmt = $conn->prepare("SELECT facility_name FROM facilities WHERE facility_school = :school_label");
+    $stmt->bindParam(':school_label', $school_label, PDO::PARAM_STR);
     $stmt->execute();
-    $result = $stmt->get_result();
 
-    $tasks = [];
-    while ($row = $result->fetch_assoc()) {
-        $tasks[] = $row['title'];
-    }
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($tasks);
-    $stmt->close();
-} else {
-    echo json_encode(["error" => "Missing parameter: school_label"]);
+    echo json_encode($result ?: []); // return empty array if no results
+} catch (PDOException $e) {
+    echo json_encode(["error" => $e->getMessage()]);
 }
 ?>
