@@ -3,6 +3,6 @@
   "description": "Simple Neon PostgreSQL connection test",
   "require": {
     "php": ">=8.0"
-    "phpmailer/phpmailer": "^6.8"
+    
   }
 }
