@@ -8,16 +8,16 @@ $action = $_POST['action'] ?? '';
 $description = $_POST['description'] ?? '';
 
 if (empty($username) || empty($userType) || empty($action) || empty($description)) {
-    echo json_encode(["status" => "error", "message" => "Missing required fields"]);
+    //echo json_encode(["status" => "error", "message" => "Missing required fields"]);
     exit;
 }
 
 try {
     $stmt = $conn->prepare("INSERT INTO logs (username, user_type, actions, description) VALUES (?, ?, ?, ?)");
     $stmt->execute([$username, $userType, $action, $description]);
-    echo json_encode(["status" => "success", "message" => "Audit log saved"]);
+    //echo json_encode(["status" => "success", "message" => "Audit log saved"]);
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    //echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
 
     function save_audit_log($conn, $username, $userType, $action, $description) {
