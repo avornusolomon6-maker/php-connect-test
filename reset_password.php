@@ -2,17 +2,12 @@
 // reset_password.php
 // Updates a user's password after verifying the old password.
 // Returns JSON only. On success returns user's email for the Android app to send notification.
-
-require_once __DIR__ . '/connect.php';   // must set $conn (PDO)
-require_once __DIR__ . '/save_audit.php'; // must provide function save_audit_log($conn,...)
-
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json');
+include 'connect.php';
+include 'save_audit.php';
 
 // Hide PHP warnings/notices from client; log them instead
-error_reporting(0);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__.'/php_error.log');
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status'=>'error','message'=>'Invalid request method']);
