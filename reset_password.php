@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Hash new password
-        $new_hashed = password_hash($new_pass, PASSWORD_BCRYPT);
+        // Force the $2a$ prefix for Java compatibility
+        $options = ['cost' => 10];
+        $new_hashed = preg_replace('/^\$2y\$/', '$2a$', password_hash($new_pass, PASSWORD_BCRYPT, $options));
+
 
         // Update password
         $update = $conn->prepare("UPDATE staffs SET password = ? WHERE LOWER(staff_name) = ?");
