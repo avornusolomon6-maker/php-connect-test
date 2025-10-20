@@ -23,23 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Verify old password
+        // Verify old password (works with $2y$)
         if (!password_verify($old_pass, $user['password'])) {
             echo json_encode(["status" => "error", "message" => "Incorrect current password"]);
             exit;
         }
 
-        // Hash new password
-        $options = ['cost' => 12]; // match Java’s cost
-        $hash = password_hash($new_pass, PASSWORD_BCRYPT, $options);
+        // Hash new password in standard PHP format ($2y$)
+        $options = ['cost' => 12];
+        $new_hashed_php = password_hash($new_pass, PASSWORD_BCRYPT, $options);
 
-        // Convert $2y$ → $2a$ (compatible with Java)
-        $new_hashed = preg_replace('/^\$2y\$/', '$2a$', $hash);
-
-
-        // Update password
+        // Store the normal PHP hash ($2y$)
         $update = $conn->prepare("UPDATE staffs SET password = ? WHERE LOWER(staff_name) = ?");
-        if ($update->execute([$new_hashed, $username])) {
+        if ($update->execute([$new_hashed_php, $username])) {
             echo json_encode([
                 "status" => "success",
                 "message" => "Password changed successfully",
@@ -48,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             echo json_encode(["status" => "error", "message" => "Failed to update password"]);
         }
+
     } catch (Exception $e) {
         echo json_encode(["status" => "error", "message" => "Server error: " . $e->getMessage()]);
     }
