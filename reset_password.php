@@ -30,9 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Hash new password
-        // Force the $2a$ prefix for Java compatibility
-        $options = ['cost' => 10];
-        $new_hashed = preg_replace('/^\$2y\$/', '$2a$', password_hash($new_pass, PASSWORD_BCRYPT, $options));
+        $options = ['cost' => 12]; // match Java’s cost
+        $hash = password_hash($new_pass, PASSWORD_BCRYPT, $options);
+
+        // Convert $2y$ → $2a$ (compatible with Java)
+        $new_hashed = preg_replace('/^\$2y\$/', '$2a$', $hash);
 
 
         // Update password
