@@ -1,4 +1,5 @@
 <?php
+header("Content-Type: application/json; charset=UTF-8");
 include 'connect.php'; // your DB connection file
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
