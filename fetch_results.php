@@ -30,10 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (strtolower($row['std_examiner']) == $examiner) {
             $score = $row['std_score'];
-            $date = $row['date'];
+            //$date = $row['date'];
         } elseif (strtolower($row['std_examiner2']) == $examiner) {
             $score = $row['std_score2'];
-            $date = $row['date2'];
+            //$date = $row['date2'];
         } else {
             continue; // skip if no match
         }
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             "program" => $program,
             "group" => $group,
             "score" => $score,
-            "date" => $date
+            //"date" => $date
         ];
     }
 
