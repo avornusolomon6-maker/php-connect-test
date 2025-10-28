@@ -26,7 +26,7 @@ $examinerLower = mb_strtolower($examiner, 'UTF-8');
 
 try {
     $sql = "
-        SELECT std_id, std_group, std_score, std_score2, std_examiner, std_examiner2
+        SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2
         FROM results
         WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner
     ";
@@ -52,6 +52,7 @@ try {
         $rows[] = [
             "number"     => $num++,
             "student_id" => $row['std_id'] ?? "",
+            "program"      => $row['std_program'] ?? "",
             "group"      => $row['std_group'] ?? "",
             "score"      => $score
         ];
