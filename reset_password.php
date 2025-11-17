@@ -24,25 +24,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Verify old password (works with $2y$)
-        if (!password_verify($old_pass, $user['password'])) {
+        if (password_verify($old_pass, $user['password'])) {
+            // Hash new password in standard PHP format ($2y$)
+            $options = ['cost' => 12];
+            $new_hashed_php = password_hash($new_pass, PASSWORD_BCRYPT, $options);
+
+            // Store the normal PHP hash ($2y$)
+            $update = $conn->prepare("UPDATE staffs SET password = ? WHERE LOWER(staff_name) = ?");
+            if ($update->execute([$new_hashed_php, $username])) {
+                echo json_encode([
+                    "status" => "success",
+                    "message" => "Password changed successfully",
+                    "email" => $user['email']
+                ]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Failed to update password"]);
+            }
+            
+        } else {
             echo json_encode(["status" => "error", "message" => "Incorrect current password"]);
             exit;
-        }
-
-        // Hash new password in standard PHP format ($2y$)
-        $options = ['cost' => 12];
-        $new_hashed_php = password_hash($new_pass, PASSWORD_BCRYPT, $options);
-
-        // Store the normal PHP hash ($2y$)
-        $update = $conn->prepare("UPDATE staffs SET password = ? WHERE LOWER(staff_name) = ?");
-        if ($update->execute([$new_hashed_php, $username])) {
-            echo json_encode([
-                "status" => "success",
-                "message" => "Password changed successfully",
-                "email" => $user['email']
-            ]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Failed to update password"]);
         }
 
     } catch (Exception $e) {
