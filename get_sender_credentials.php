@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once "db_connection.php"; // Your PDO connection
+require_once "connect.php"; // Your PDO connection
 
 try {
     $sql = "SELECT email, email_password FROM teachingandexams";
