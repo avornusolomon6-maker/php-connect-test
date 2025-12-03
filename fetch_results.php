@@ -6,8 +6,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// include your existing PDO connection which should set $conn as PDO
-// example: $conn = new PDO(...);
 include 'connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -26,7 +24,7 @@ $examinerLower = mb_strtolower($examiner, 'UTF-8');
 
 try {
     $sql = "
-        SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2
+        SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2, care_plan, care_plan2
         FROM results
         WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner
     ";
@@ -46,9 +44,11 @@ try {
         if ($stdExaminer1 === $examinerLower) {
             $score = $row['std_score'] ?? "";
             $date = $row['date'] ?? "";
+            $careplan = $row['care_plan'] ?? "";
         } elseif ($stdExaminer2 === $examinerLower) {
             $score = $row['std_score2'] ?? "";
             $date = $row['date2'] ?? "";
+            $careplan = $row['care_plan2'] ?? "";
         }
 
         $rows[] = [
@@ -57,7 +57,8 @@ try {
             "program"      => $row['std_program'] ?? "",
             "group"      => $row['std_group'] ?? "",
             "score"      => $score,
-            "date"      => $date
+            "date"      => $date,
+            "careplan"  => $careplan
         ];
     }
 
