@@ -1,38 +1,54 @@
 <?php
 header('Content-Type: application/json');
-require 'connect.php';
+require_once 'connect.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $school = trim($_POST['school'] ?? '');
+if (!isset($_GET['school'])) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Missing parameter: school"
+    ]);
+    exit;
+}
 
-    if (empty($school)) {
-        echo json_encode(["status" => "error", "message" => "Missing school name"]);
+$school = trim($_GET['school']);
+
+try {
+    $sql = "SELECT level, no_of_session, exams_percent, task_per_session, taskpercent_per_session 
+            FROM exams_settings 
+            WHERE school = ?
+            AND level IN ('100','200','300','400','500','600')";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$school]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (count($rows) < 6) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Settings not found for all levels"
+        ]);
         exit;
     }
 
-    try {
-        $stmt = $conn->prepare("SELECT task_percent FROM administrator WHERE school = ?");
-        $stmt->execute([$school]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $data = [];
 
-        if ($row && $row['task_percent'] != "0") {
-            echo json_encode([
-                "status" => "success",
-                "task_percent" => $row['task_percent']
-            ]);
-        } else {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Task required percentage not found, please contact admin"
-            ]);
-        }
-    } catch (Exception $e) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Server error: " . $e->getMessage()
-        ]);
+    foreach ($rows as $row) {
+        $data[$row['level']] = [
+            "sessions" => $row['no_of_session'],
+            "percent"  => $row['exams_percent'],
+            "taskno"  => $row['task_per_session'],
+            "taskpercent"  => $row['taskpercent_per_session']
+        ];
     }
-} else {
-    echo json_encode(["status" => "error", "message" => "Invalid request method"]);
+
+    echo json_encode([
+        "success" => true,
+        "data" => $data
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 }
-?>
