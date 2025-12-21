@@ -25,7 +25,7 @@ try {
     if (!$row) {
         echo json_encode([
             "success" => false,
-            "message" => "Settings not found"
+            "message" => "Percentages not found for this level"
         ]);
         exit;
     }
