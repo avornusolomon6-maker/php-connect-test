@@ -2,30 +2,33 @@
 header('Content-Type: application/json');
 require_once 'connect.php';
 
-if (!isset($_GET['school'])) {
+if (!isset($_GET['school']) || !isset($_GET['level'])) {
     echo json_encode([
         "success" => false,
-        "message" => "Missing parameter: school"
+        "message" => "Missing parameter: school, level"
     ]);
     exit;
 }
 
 $school = trim($_GET['school']);
+$level = trim($_GET['level']);
 
 try {
     $sql = "SELECT level, no_of_session, exams_percent, task_per_session, taskpercent_per_session 
             FROM exams_settings 
             WHERE school = ?
-            AND level IN ('100','200','300','400','500','600')";
+            AND level = ?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$school]);
+    $stmt->bindValue(':school', $school, PDO::PARAM_STR);
+    $stmt->bindValue(':level', $level, PDO::PARAM_STR);
+    $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (count($rows) < 6) {
+    if (count($rows) < 1) {
         echo json_encode([
             "success" => false,
-            "message" => "Settings not found for all levels"
+            "message" => "Settings not found for this level"
         ]);
         exit;
     }
