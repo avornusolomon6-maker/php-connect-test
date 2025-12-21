@@ -5,48 +5,35 @@ require_once 'connect.php';
 if (!isset($_GET['school']) || !isset($_GET['level'])) {
     echo json_encode([
         "success" => false,
-        "message" => "Missing parameter: school, level"
+        "message" => "Missing parameters"
     ]);
     exit;
 }
 
 $school = trim($_GET['school']);
-$level = trim($_GET['level']);
+$level  = trim($_GET['level']);
 
 try {
-    $sql = "SELECT level, no_of_session, exams_percent, task_per_session, taskpercent_per_session 
+    $sql = "SELECT no_of_session, exams_percent, task_per_session, taskpercent_per_session 
             FROM exams_settings 
-            WHERE school = ?
-            AND level = ?";
+            WHERE school = ? AND level = ?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bindValue(':school', $school, PDO::PARAM_STR);
-    $stmt->bindValue(':level', $level, PDO::PARAM_STR);
-    $stmt->execute();
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$school, $level]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (count($rows) < 1) {
+    if (!$row) {
         echo json_encode([
             "success" => false,
-            "message" => "Settings not found for this level"
+            "message" => "Settings not found"
         ]);
         exit;
     }
 
-    $data = [];
-
-    foreach ($rows as $row) {
-        $data[$row['level']] = [
-            "sessions" => $row['no_of_session'],
-            "percent"  => $row['exams_percent'],
-            "taskno"  => $row['task_per_session'],
-            "taskpercent"  => $row['taskpercent_per_session']
-        ];
-    }
-
     echo json_encode([
         "success" => true,
-        "data" => $data
+        "sessions" => $row['no_of_session'],
+        "percent"  => $row['exams_percent']
     ]);
 
 } catch (Exception $e) {
