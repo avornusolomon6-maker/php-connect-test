@@ -13,7 +13,7 @@ if (!isset($_GET['school'])) {
 $school = trim($_GET['school']);
 
 try {
-    $sql = "SELECT level, no_of_session, exams_percent 
+    $sql = "SELECT level, no_of_session, task_per_session, taskpercent_per_session 
             FROM exams_settings 
             WHERE school = ?
             AND level IN ('100','200','300','400','500','600')";
@@ -25,7 +25,7 @@ try {
     if (count($rows) < 6) {
         echo json_encode([
             "success" => false,
-            "message" => "Settings not found for all levels"
+            "message" => "Settings not found for all levels, Please contact your administrator"
         ]);
         exit;
     }
@@ -35,7 +35,8 @@ try {
     foreach ($rows as $row) {
         $data[$row['level']] = [
             "sessions" => $row['no_of_session'],
-            "percent"  => $row['exams_percent']
+            "percent"  => $row['taskpercent_per_session'],
+            "taskno"  => $row['task_per_session']
         ];
     }
 
