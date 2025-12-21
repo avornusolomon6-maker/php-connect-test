@@ -33,7 +33,9 @@ try {
     echo json_encode([
         "success" => true,
         "sessions" => $row['no_of_session'],
-        "percent"  => $row['exams_percent']
+        "percent"  => $row['exams_percent'],
+        "taskno"  => $row['task_per_session'],
+        "taskpercent"  => $row['taskpercent_per_session']
     ]);
 
 } catch (Exception $e) {
