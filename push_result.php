@@ -15,7 +15,7 @@ $std_group     = $_POST['std_group'] ?? '';
 $std_score     = $_POST['std_score'] ?? '';
 $std_examiner  = $_POST['std_examiner'] ?? '';
 $taskNo = $_POST['taskNo'] ?? '';
-$sessionNO = $_POST['sessionNo'] ?? '';
+$sessionNo = $_POST['sessionNo'] ?? '';
 
 if (empty($std_id)) {
     echo json_encode(["status" => "error", "message" => "Missing student ID"]);
@@ -45,7 +45,7 @@ try {
         // Step 3: Level-based logic
         switch ($sessionNo) {
             case "1":              
-                if ($taskNo === 1) {
+                if ($taskNo === "1") {
                     if ($result['task1'] >= 1) {
                         echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
                         exit;
@@ -63,7 +63,7 @@ try {
                     echo json_encode($ok ? 
                         ["status" => "success", "message" => "Result saved successfully!"] :
                         ["status" => "error", "message" => "Failed to save result"]);
-                } elseif($taskNo === 2) {
+                } elseif($taskNo === "2") {
                     
                     if ($result['task1'] < 1) {                        
                         $newScore = (float)$std_score;
@@ -101,7 +101,7 @@ try {
 
             case "2":
                 if (empty($result['std_score'])) {
-                    if ($taskNo === 1) {
+                    if ($taskNo === "1") {
                     if ($result['task1'] >= 1) {
                         echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
                         exit;
@@ -119,7 +119,7 @@ try {
                     echo json_encode($ok ? 
                         ["status" => "success", "message" => "Result saved successfully!"] :
                         ["status" => "error", "message" => "Failed to save result"]);
-                } elseif($taskNo === 2) {
+                } elseif($taskNo === "2") {
                     
                     if ($result['task1'] < 1) {                        
                         $newScore = (float)$std_score;
@@ -163,7 +163,7 @@ try {
                         exit;
                     }
 
-                    if ($taskNo === 1) {
+                    if ($taskNo === "1") {
                     if ($result['task1'] >= 1) {
                         echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
                         exit;
@@ -181,7 +181,7 @@ try {
                     echo json_encode($ok ? 
                         ["status" => "success", "message" => "Result saved successfully!"] :
                         ["status" => "error", "message" => "Failed to save result"]);
-                } elseif($taskNo === 2) {
+                } elseif($taskNo === "2") {
                     
                     if ($result['task2'] < 1) {                        
                         $newScore = (float)$std_score;
@@ -225,7 +225,7 @@ try {
         $taskNumber = 1;
         $insert = $conn->prepare("INSERT INTO results 
             (std_id, std_school, std_program, std_level, std_semester, std_year, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME)");
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?)");
         $ok = $insert->execute([$std_id, $std_school, $std_program, $std_level, $std_semester, $std_year,
                                 $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber]);
 
