@@ -13,8 +13,9 @@ $std_id = trim($_POST['std_id'] ?? '');
 $std_level = trim($_POST['std_level'] ?? '');
 $care_plan_value = trim($_POST['care_plan_value'] ?? '');
 $examiner = trim($_POST['examiner'] ?? '');
+$session_no = trim($_POST['session_no'] ?? '');
 
-if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '') {
+if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '' || $session_no === '') {
     echo json_encode(["status" => "error", "message" => "All fields are required"]);
     exit;
 }
@@ -49,9 +50,9 @@ try {
     };
 
     // levels that use primary score only
-    $primaryLevels = ["100","200","500","600"];
+    //$primaryLevels = ["100","200","500","600"];
 
-    if (in_array($std_level, $primaryLevels, true)) {
+    if ($session_no === "1") {
 
         // must be examined by std_examiner (exact match)
         if ($rowExam1 !== $examinerLower) {
@@ -81,8 +82,8 @@ try {
             exit;
         }
 
-    } elseif ($std_level === "300" || $std_level === "400") {
-        // level 300/400: handle first or second examiner
+    } elseif ($session_no === "2") {
+        // sessionNo 2: handle first or second examiner
         // if examiner matches std_examiner => update std_score & care_plan
         // else if matches std_examiner2 => update std_score2 & care_plan2
         if ($examinerLower === $rowExam1) {
@@ -134,7 +135,7 @@ try {
             exit;
         }
     } else {
-        echo json_encode(["status" => "error", "message" => "Unsupported student level"]);
+        echo json_encode(["status" => "error", "message" => "Unsupported session number"]);
         exit;
     }
 
