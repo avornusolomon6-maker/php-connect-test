@@ -100,123 +100,105 @@ try {
                 break;
 
             case "2":
-                if (empty($result['std_score'])) {
-                    if ($taskNo === "1") {
-                    if ($result['task1'] >= 1) {
-                        echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
-                        exit;
-                    }
-                    $newScore = (float)$std_score;
-                    $updatedScore = ((float)$result['std_score']) + $newScore;
-                    $update = $conn->prepare("
-                        UPDATE results 
-                        SET std_score=?, task1=task1+1,
-                        std_facility=?, std_ward=?,
-                        std_examiner=?, date=CURRENT_DATE, time=CURRENT_TIME
-                        WHERE std_id=?");                  
-                    $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                if ($taskNo === "1") {
+                    if ($result['task1'] < 1) {
                     
-                    echo json_encode($ok ? 
-                        ["status" => "success", "message" => "Result saved successfully!"] :
-                        ["status" => "error", "message" => "Failed to save result"]);
-                } elseif($taskNo === "2") {
-                    
-                    if ($result['task1'] < 1) {                        
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
-                            ["status" => "error", "message" => "Failed to save result"]);                        
-                    }elseif($result['task1'] < 2){
+                            ["status" => "error", "message" => "Failed to save result"]);
+                    } elseif ($result['task2'] < 1){
+                        $lastDate = new DateTime($result['date']);
+                        $today = new DateTime();
+                        $interval = $today->diff($lastDate)->days;
+                        if ($interval < 1) {
+                            echo json_encode(["status" => "error", "message" => "$std_id has already been scored today"]);
+                            exit;
+                        }
+                        $newScore = (float)$std_score;
+                        $updatedScore = ((float)$result['std_score2']) + $newScore;
+                        $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
+                        time2=CURRENT_TIME WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                   
+                        echo json_encode($ok ? 
+                            ["status" => "success", "message" => "Result saved successfully!"] :
+                            ["status" => "error", "message" => "Failed to save result"]);
+                    }else {
+                        echo json_encode(["status" => "error", "message" => "$std_id has already been examine twice"]);
+                            exit;
+                    }
+                } elseif ($taskNo === "2") {
+
+                    if ($result['task1'] < 1) {                    
+                        $newScore = (float)$std_score;
+                        $updatedScore = ((float)$result['std_score']) + $newScore;
+                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        time=CURRENT_TIME WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    
+                        echo json_encode($ok ? 
+                            ["status" => "success", "message" => "Result saved successfully!"] :
+                            ["status" => "error", "message" => "Failed to save result"]);
+                    }else if($result['task1'] < 2){
                         if (strcasecmp($result['std_examiner'], $std_examiner) !== 0) {
                             echo json_encode([
                             "status" => "error",
                             "message" => "Task 2 must be scored by the same examiner who scored Task 1"]);
                             exit;
-                        }                        
+                        }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
-                            ["status" => "error", "message" => "Failed to save result"]);                   
-                    }else{
-                        echo json_encode(["status" => "error", "message" => "Task 1 and 2 already submitted"]);
-                        exit;
-                    }
-                } else{
-                    echo json_encode(["status" => "error", "message" => "Invalid task number"]);
-                    exit;
-                }
-                } elseif (empty($result['std_score2'])) {
-                    $lastDate = new DateTime($result['date']);
-                    $today = new DateTime();
-                    $interval = $today->diff($lastDate)->days;
-
-                    if ($interval < 1) {
-                        echo json_encode(["status" => "error", "message" => "$std_id has already been scored today"]);
-                        exit;
-                    }
-
-                    if ($taskNo === "1") {
-                    if ($result['task1'] >= 1) {
-                        echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
-                        exit;
-                    }
-                    $newScore = (float)$std_score;
-                    $updatedScore = ((float)$result['std_score2']) + $newScore;
-                    $update = $conn->prepare("
-                        UPDATE results 
-                        SET std_score2=?, task2=task2+1,
-                        std_facility2=?, std_ward2=?,
-                        std_examiner2=?, date2=CURRENT_DATE, time2=CURRENT_TIME
-                        WHERE std_id=?");                  
-                    $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
-                    
-                    echo json_encode($ok ? 
-                        ["status" => "success", "message" => "Result saved successfully!"] :
-                        ["status" => "error", "message" => "Failed to save result"]);
-                } elseif($taskNo === "2") {
-                    
-                    if ($result['task2'] < 1) {                        
+                            ["status" => "error", "message" => "Failed to save result"]);                    
+                }elseif ($result['task2'] < 1) {    
+                        $lastDate = new DateTime($result['date']);
+                        $today = new DateTime();
+                        $interval = $today->diff($lastDate)->days;
+                        if ($interval < 1) {
+                            echo json_encode(["status" => "error", "message" => "$std_id has already been scored today"]);
+                            exit;
+                        }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
                         time2=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
-                            ["status" => "error", "message" => "Failed to save result"]);                        
-                    }elseif($result['task2'] < 2){
+                            ["status" => "error", "message" => "Failed to save result"]);
+                    }else if($result['task2'] < 2){
                         if (strcasecmp($result['std_examiner2'], $std_examiner) !== 0) {
                             echo json_encode([
                             "status" => "error",
                             "message" => "Task 2 must be scored by the same examiner who scored Task 1"]);
                             exit;
-                        }                        
+                        }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
                         time2=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
-                            ["status" => "error", "message" => "Failed to save result"]);                   
-                    }else{
-                        echo json_encode(["status" => "error", "message" => "Task 1 and 2 already submitted"]);
-                        exit;
-                    }
-                } else{
-                    echo json_encode(["status" => "error", "message" => "Invalid task number"]);
-                    exit;
-                }
-                } else {
+                            ["status" => "error", "message" => "Failed to save result"]);
+                    }else {
                     echo json_encode(["status" => "error", "message" => "$std_id has already been scored"]);
+                    }
+                }else{
+                    //invalid task no
+                    echo json_encode(["status" => "error", "message" => "Invalid task number"]);
                 }
                 break;
         }
