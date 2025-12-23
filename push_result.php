@@ -47,7 +47,7 @@ try {
             case "1":              
                 if ($taskNo === "1") {
                     if ($result['task1'] >= 1) {
-                        echo json_encode(["status" => "error", "message" => "Task 1 already submitted"]);
+                        echo json_encode(["status" => "error", "message" => "$std_id has already been scored"]);
                         exit;
                     }
                     $newScore = (float)$std_score;
