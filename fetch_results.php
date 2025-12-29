@@ -24,7 +24,7 @@ $examinerLower = mb_strtolower($examiner, 'UTF-8');
 
 try {
     $sql = "
-        SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2, care_plan, care_plan2
+        SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2, care_plan, care_plan2, task1, task2, std_level
         FROM results
         WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner
     ";
@@ -45,10 +45,12 @@ try {
             $score = $row['std_score'] ?? "";
             $date = $row['date'] ?? "";
             $careplan = $row['care_plan'] ?? "";
+            $taskNo = $row['task1'] ?? "";
         } elseif ($stdExaminer2 === $examinerLower) {
             $score = $row['std_score2'] ?? "";
             $date = $row['date2'] ?? "";
             $careplan = $row['care_plan2'] ?? "";
+            $taskNo = $row['task2'] ?? "";
         }
 
         $rows[] = [
@@ -58,7 +60,9 @@ try {
             "group"      => $row['std_group'] ?? "",
             "score"      => $score,
             "date"      => $date,
-            "careplan"  => $careplan
+            "careplan"  => $careplan,
+            "taskNo"    => $taskNo,
+            "level"      => $row['std_level'] ?? ""
         ];
     }
 
