@@ -57,7 +57,6 @@ try {
             "number"     => $num++,
             "student_id" => $row['std_id'] ?? "",
             "program"      => $row['std_program'] ?? "",
-            "group"      => $row['std_group'] ?? "",
             "score"      => $score,
             "date"      => $date,
             "careplan"  => $careplan,
