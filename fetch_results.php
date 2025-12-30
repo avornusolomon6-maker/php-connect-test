@@ -57,11 +57,11 @@ try {
             "number"     => $num++,
             "student_id" => $row['std_id'] ?? "",
             "program"      => $row['std_program'] ?? "",
+            "level"      => $row['std_level'] ?? "",
             "score"      => $score,
             "date"      => $date,
             "careplan"  => $careplan,
-            "taskNo"    => $taskNo,
-            "level"      => $row['std_level'] ?? ""
+            "taskNo"    => $taskNo
         ];
     }
 
