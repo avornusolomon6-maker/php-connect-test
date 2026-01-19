@@ -19,7 +19,7 @@ try {
         $componentTaskId = $row['component_task_id'];
 
         // Step 2: Get all task names for that component
-        $stmt2 = $conn->prepare("SELECT task_name FROM tasks WHERE component_task_id = ?");
+        $stmt2 = $conn->prepare("SELECT task_name FROM tasks WHERE component_task_id = ? ORDER BY task_id");
         $stmt2->execute([$componentTaskId]);
 
         $tasks = $stmt2->fetchAll(PDO::FETCH_COLUMN);
