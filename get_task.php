@@ -3,16 +3,21 @@ header('Content-Type: application/json');
 require 'connect.php';
 
 $title = $_GET['title'] ?? '';
+$tasktype = $_GET['tasktype'] ?? '';
 
 if (empty($title)) {
     echo json_encode(["success" => false, "message" => "No title provided"]);
     exit;
 }
+if (empty($tasktype)) {
+    echo json_encode(["success" => false, "message" => "No task type provided"]);
+    exit;
+}
 
 try {
     // Step 1: Get component_task_id
-    $stmt = $conn->prepare("SELECT component_task_id FROM component_tasks WHERE LOWER(title) = LOWER(?)");
-    $stmt->execute([$title]);
+    $stmt = $conn->prepare("SELECT component_task_id FROM component_tasks WHERE LOWER(title) = LOWER(?) AND LOWER(department) = LOWER(?)");
+    $stmt->execute([$title, $tasktype]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($row) {
