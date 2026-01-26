@@ -10,7 +10,7 @@ if (!isset($_GET['school_label']) || empty($_GET['school_label'])) {
 $school_label = $_GET['school_label'];
 
 try {
-    $stmt = $conn->prepare("SELECT facility_name FROM facilities WHERE facility_school = :school_label ORDER BY facility_name ASC");
+    $stmt = $conn->prepare("SELECT facility_name FROM facilities1 WHERE facility_school = :school_label ORDER BY facility_name ASC");
     $stmt->bindParam(':school_label', $school_label, PDO::PARAM_STR);
     $stmt->execute();
 
