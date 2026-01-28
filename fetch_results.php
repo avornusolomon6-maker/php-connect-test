@@ -26,8 +26,7 @@ try {
     $sql = "
         SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2, care_plan, care_plan2, task1, task2, std_level
         FROM results
-        WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner
-    ";
+        WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner ORDER BY COALESCE(date, date2) DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':examiner', $examinerLower, PDO::PARAM_STR);
     $stmt->execute();
