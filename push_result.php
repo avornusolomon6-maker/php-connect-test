@@ -16,6 +16,7 @@ $std_score     = $_POST['std_score'] ?? '';
 $std_examiner  = $_POST['std_examiner'] ?? '';
 $taskNo = $_POST['taskNo'] ?? '';
 $sessionNo = $_POST['sessionNo'] ?? '';
+$scoreId = $_POST['scoreId'] ?? '';
 
 if (empty($std_id)) {
     echo json_encode(["status" => "error", "message" => "Missing student ID"]);
@@ -23,6 +24,18 @@ if (empty($std_id)) {
 }
 
 try {
+    // check if already submitted
+    $stmt1 = $conn->prepare("SELECT * FROM results WHERE score_id = ? AND std_id = ?");
+    $stmt1->execute([$scoreId, $std_id]);
+
+    if ($stmt1->rowCount() > 0) {
+        echo json_encode([
+            "status" => "success",
+            "message" => "Result already submitted"
+        ]);
+        exit;
+    }
+    
     // Step 1: Check if student already exists
     $stmt = $conn->prepare("SELECT std_level, std_score, std_score2, std_examiner, std_examiner2, date, task1, task2 FROM results WHERE std_id = ?");
     $stmt->execute([$std_id]);
