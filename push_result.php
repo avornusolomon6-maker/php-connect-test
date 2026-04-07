@@ -69,9 +69,9 @@ try {
                         UPDATE results 
                         SET std_score=?, task1=task1+1,
                         std_facility=?, std_ward=?,
-                        std_examiner=?, date=CURRENT_DATE, time=CURRENT_TIME
+                        std_examiner=?, date=CURRENT_DATE, time=CURRENT_TIME, score_id=?
                         WHERE std_id=?");                  
-                    $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                    $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                     echo json_encode($ok ? 
                         ["status" => "success", "message" => "Result saved successfully!"] :
@@ -82,8 +82,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
-                        time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        time=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);             
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
                             ["status" => "error", "message" => "Failed to save result"]);                        
@@ -97,8 +97,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
-                        time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);             
+                        time=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);             
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
                             ["status" => "error", "message" => "Failed to save result"]);                   
@@ -119,8 +119,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
-                        time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                        time=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
@@ -136,8 +136,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
-                        time2=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                   
+                        time2=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                   
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
                             ["status" => "error", "message" => "Failed to save result"]);
@@ -151,8 +151,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
-                        time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                        time=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
@@ -167,8 +167,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
-                        time=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                        time=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
@@ -184,8 +184,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
-                        time2=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                        time2=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
@@ -200,8 +200,8 @@ try {
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
                         $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
-                        time2=CURRENT_TIME WHERE std_id=?");                  
-                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $std_id]);                    
+                        time2=CURRENT_TIME, score_id=? WHERE std_id=?");                  
+                        $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id]);                    
                     
                         echo json_encode($ok ? 
                             ["status" => "success", "message" => "Result saved successfully!"] :
@@ -219,10 +219,10 @@ try {
         // Step 4: Insert new result
         $taskNumber = 1;
         $insert = $conn->prepare("INSERT INTO results 
-            (std_id, std_school, std_program, std_level, std_semester, std_year, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?)");
+            (std_id, std_school, std_program, std_level, std_semester, std_year, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1, score_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?)");
         $ok = $insert->execute([$std_id, $std_school, $std_program, $std_level, $std_semester, $std_year,
-                                $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber]);
+                                $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber, $scoreId]);
 
         echo json_encode($ok ?
             ["status" => "success", "message" => "Result saved successfully!"] :
