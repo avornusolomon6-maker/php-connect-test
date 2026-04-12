@@ -12,29 +12,25 @@ try {
     $data = [];
 
     foreach ($rows as $row) {
-        $school  = $row['school'];
+
         $program = $row['program'];
         $level   = $row['level'];
 
-        $percent = (double)$row['careplan_percent'];
-        $sessions = (int)$row['no_of_session'];
-        $taskNo = (int)$row['task_per_session'];
+        $percent     = (double)$row['careplan_percent'];
+        $sessions    = (int)$row['no_of_session'];
+        $taskNo      = (int)$row['task_per_session'];
         $app_percent = (double)$row['appearance_percent'];
 
-        // Build nested structure
-        if (!isset($data[$school])) {
-            $data[$school] = [];
+        // ✅ ONLY program → level
+        if (!isset($data[$program])) {
+            $data[$program] = [];
         }
 
-        if (!isset($data[$school][$program])) {
-            $data[$school][$program] = [];
-        }
-
-        $data[$school][$program][$level] = [
-            "percent" => $percent,
-            "sessions" => $sessions,
-            "taskNo" => $taskNo,
-            "app_percent" => $app_percent
+        $data[$program][$level] = [
+            "percent"      => $percent,
+            "sessions"     => $sessions,
+            "taskNo"       => $taskNo,
+            "app_percent"  => $app_percent
         ];
     }
 
