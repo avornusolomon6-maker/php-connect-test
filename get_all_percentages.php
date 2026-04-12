@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 require_once 'connect.php';
 
 try {
-    $sql = "SELECT school, program, level, exams_percent, no_of_session FROM exams_settings";
+    $sql = "SELECT school, program, level, taskpercent_per_session, no_of_session, task_per_session FROM exams_settings";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
@@ -16,8 +16,9 @@ try {
         $program = $row['program'];
         $level   = $row['level'];
 
-        $percent = (double)$row['exams_percent'];
+        $percent = (double)$row['taskpercent_per_session'];
         $sessions = (int)$row['no_of_session'];
+        &taskNo = (int)$row['task_per_session'];
 
         // Build nested structure
         if (!isset($data[$school])) {
@@ -30,7 +31,8 @@ try {
 
         $data[$school][$program][$level] = [
             "percent" => $percent,
-            "sessions" => $sessions
+            "sessions" => $sessions,
+            "taskNo" => $taskNo
         ];
     }
 
