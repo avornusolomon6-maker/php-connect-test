@@ -14,8 +14,9 @@ $std_level = trim($_POST['std_level'] ?? '');
 $care_plan_value = trim($_POST['care_plan_value'] ?? '');
 $examiner = trim($_POST['examiner'] ?? '');
 $session_no = trim($_POST['session_no'] ?? '');
+$program = trim($_POST['program'] ?? '');
 
-if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '' || $session_no === '') {
+if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '' || $session_no === '' || $program === '') {
     echo json_encode(["status" => "error", "message" => "All fields are required"]);
     exit;
 }
@@ -36,9 +37,10 @@ try {
     $rowExam1 = isset($row['std_examiner']) ? mb_strtolower($row['std_examiner'], 'UTF-8') : '';
     $rowExam2 = isset($row['std_examiner2']) ? mb_strtolower($row['std_examiner2'], 'UTF-8') : '';
     $rowLevel = isset($row['std_level']) ? $row['std_level'] : '';
+    $rowProgram = isset($row['std_program']) ? $row['std_program'] : '';
 
     // check level matches
-    if ($rowLevel !== $std_level) {
+    if ($rowLevel !== $std_level || $rowProgram !== $program) {
         echo json_encode(["status" => "error", "message" => "Student data does not match the existing data"]);
         exit;
     }
