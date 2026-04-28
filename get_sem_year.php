@@ -2,40 +2,25 @@
 header('Content-Type: application/json');
 require_once 'connect.php';
 
-if (!isset($_GET['program']) || !isset($_GET['level'])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Missing parameters"
-    ]);
-    exit;
-}
-
-$program = trim($_GET['program']);
-$level  = trim($_GET['level']);
-
 try {
-    $sql = "SELECT no_of_session, exams_percent, task_per_session, taskpercent_per_session 
-            FROM exams_settings 
-            WHERE program = ? AND level = ?";
+    $sql = "SELECT * FROM settings";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$program, $level]);
+    $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) {
         echo json_encode([
             "success" => false,
-            "message" => "Percentages not found for this level and Program"
+            "message" => "Data not found, please contact your administrator"
         ]);
         exit;
     }
 
     echo json_encode([
         "success" => true,
-        "sessions" => $row['no_of_session'],
-        "percent"  => $row['exams_percent'],
-        "taskno"  => $row['task_per_session'],
-        "taskpercent"  => $row['taskpercent_per_session']
+        "semester" => $row['semester'],
+        "year"  => $row['academic_year']
     ]);
 
 } catch (Exception $e) {
