@@ -53,7 +53,7 @@ try {
              ->execute([$sessionId, $username]);
 
         // Save audit log
-        $combined = $school . " " . $usertype;
+        $combined = $staff['school'] . " " . $usertype;
         saveAuditLog($conn, $username, $combined, "Log In", "User logged in successfully");
 
         // Return success
