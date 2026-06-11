@@ -7,7 +7,7 @@ try {
     $input = json_decode(file_get_contents("php://input"), true);
     $username = strtolower(trim($input['staff_name']));
     $password = $input['password'];
-    $school = trim($input['school']);
+    //$school = trim($input['school']);
     $usertype = trim($input['usertype']);
     $sessionId = $input['session_id']; // just stored for record
 
@@ -17,7 +17,7 @@ try {
     }
 
     // Fetch staff record
-    $stmt = $conn->prepare("SELECT password, school, usertype, status, failed_attempts, locked_until 
+    $stmt = $conn->prepare("SELECT password, school, department, usertype, status, failed_attempts, locked_until 
                             FROM staffs WHERE LOWER(staff_name) = ?");
     $stmt->execute([$username]);
     $staff = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -47,7 +47,7 @@ try {
     }
 
     // Check password
-    if (password_verify($password, $staff['password']) && $school === $staff['school']) {
+    if (password_verify($password, $staff['password'])) {
         // Reset failed attempts
         $conn->prepare("UPDATE staffs SET failed_attempts = 0, locked_until = NULL, user_session = ?, last_login = NOW() WHERE LOWER(staff_name) = LOWER(?)")
              ->execute([$sessionId, $username]);
@@ -57,8 +57,13 @@ try {
         saveAuditLog($conn, $username, $combined, "Log In", "User logged in successfully");
 
         // Return success
-        echo json_encode(["status" => "success", "message" => "Login successful"]);
-        exit;
+        echo json_encode([
+        "status" => "success",
+        "school" => $staff['school'],
+        "department"  => $staff['department']
+    ]);        
+        //echo json_encode(["status" => "success", "message" => "Login successful"]);
+        //exit;
     } else {
         // Handle failed attempt
         $failed_attempts = $staff['failed_attempts'] + 1;
