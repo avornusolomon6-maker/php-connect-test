@@ -11,7 +11,7 @@ try {
     $usertype = trim($input['usertype']);
     $sessionId = $input['session_id']; // just stored for record
 
-    if (!$username || !$password || !$school || !$usertype) {
+    if (!$username || !$password || !$usertype) {
         echo json_encode(["status" => "error", "message" => "All fields are required."]);
         exit;
     }
@@ -57,13 +57,9 @@ try {
         saveAuditLog($conn, $username, $combined, "Log In", "User logged in successfully");
 
         // Return success
-        echo json_encode([
-        "status" => "success",
-        "school" => $staff['school'],
-        "department"  => $staff['department']
-    ]);        
+        echo json_encode(["status" => "success", "school" => $staff['school'], "department"  => $staff['department']]);        
         //echo json_encode(["status" => "success", "message" => "Login successful"]);
-        //exit;
+        exit;
     } else {
         // Handle failed attempt
         $failed_attempts = $staff['failed_attempts'] + 1;
