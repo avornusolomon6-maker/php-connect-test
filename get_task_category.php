@@ -10,8 +10,8 @@ if (!isset($_GET['school_label'])) {
 $school_label = $_GET['school_label'];
 
 try {
-    // ✅ use $conn instead of $pdo
-    $stmt = $conn->prepare("SELECT title FROM component_tasks WHERE school_label = :school_label ORDER BY title ASC");
+    // use $conn instead of $pdo
+    $stmt = $conn->prepare("SELECT category FROM task_categories WHERE school = :school_label ORDER BY category ASC");
     $stmt->bindParam(':school_label', $school_label, PDO::PARAM_STR);
     $stmt->execute();
 
