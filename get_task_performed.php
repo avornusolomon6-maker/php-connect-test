@@ -1,50 +1,47 @@
 <?php
-header('Content-Type: application/json');
-require_once 'connect.php';
+// fetch_results.php
+error_reporting(0);                // hide warnings/notices so response stays valid JSON
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-if (!isset($_GET['std_id'])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Missing student ID"
-    ]);
+include 'connect.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["success" => false, "message" => "Invalid request method"]);
     exit;
 }
 
-$std_id = trim($_GET['std_id']);
+$department = isset($_POST['department']) ? trim($_POST['department']) : '';
+if ($department === '') {
+    echo json_encode(["success" => false, "message" => "Missing department parameter"]);
+    exit;
+}
+
+// normalize for comparison
+$departmentLower = mb_strtolower($department, 'UTF-8');
 
 try {
+    $stmt = $conn->prepare("SELECT std_id, task_title1, task_title2, task_title3, task_title4 FROM results WHERE LOWER(std_program) = ? ORDER BY COALESCE(date, date2) DESC");
+    $stmt->execute([$departmentLower]);
 
-    $sql = "SELECT task_title1, task_title2, task_title3, task_title4
-            FROM results
-            WHERE std_id = ?";
+    $rows = [];
 
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$std_id]);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$row) {
-        echo json_encode([
-            "success" => false,
-            "message" => "Student not found"
-        ]);
-        exit;
+        $rows[] = [
+            "student_id" => $row['std_id'] ?? "",
+            "task1"      => $row['task_title1'] ?? "",
+            "task2"      => $row['task_title2'] ?? "",
+            "task3"      => $row['task_title3'] ?? "",
+            "task4"      => $row['task_title4'] ?? ""
+        ];
     }
 
-    echo json_encode([
-        "success" => true,
-        "task1" => $row['task_title1'],
-        "task2" => $row['task_title2'],
-        "task3" => $row['task_title3'],
-        "task4" => $row['task_title4']
-    ]);
+    echo json_encode(["success" => true, "data" => $rows]);
 
-} catch (Exception $e) {
-
-    echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
-    ]);
-
+} catch (PDOException $e) {
+    // don't echo raw $e->getMessage() in production; return generic message
+    echo json_encode(["success" => false, "message" => "Server error when querying task performed"]);
 }
-?>
