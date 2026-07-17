@@ -7,8 +7,6 @@ $std_id        = $_POST['std_id'] ?? '';
 $std_school    = $_POST['std_school'] ?? '';
 $std_program   = $_POST['std_program'] ?? '';
 $std_level     = $_POST['std_level'] ?? '';
-$std_semester  = $_POST['std_semester'] ?? '';
-$std_year      = $_POST['std_year'] ?? '';
 $std_facility  = $_POST['std_facility'] ?? '';
 $std_ward      = $_POST['std_ward'] ?? '';
 $std_group     = $_POST['std_group'] ?? '';
@@ -216,10 +214,9 @@ try {
         // Step 4: Insert new result
         $taskNumber = 1;
         $insert = $conn->prepare("INSERT INTO results 
-            (std_id, std_school, std_program, std_level, std_semester, std_year, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1, score_id, task_title1)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?, ?)");
-        $ok = $insert->execute([$std_id, $std_school, $std_program, $std_level, $std_semester, $std_year,
-                                $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber, $scoreId, $taskTitle]);
+            (std_id, std_school, std_program, std_level, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1, score_id, task_title1)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?, ?)");
+        $ok = $insert->execute([$std_id, $std_school, $std_program, $std_level, $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber, $scoreId, $taskTitle]);
 
         echo json_encode($ok ?
             ["status" => "success", "message" => "Result saved successfully!"] :
