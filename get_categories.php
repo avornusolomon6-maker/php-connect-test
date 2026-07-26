@@ -1,7 +1,10 @@
 <?php
 
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header("Content-Type: application/json; charset=UTF-8");
-require_once("../config/connect2.php");
+require_once("connect2.php");
 
 $response = array("success" => false, "message" => "", "categories" => array());
 
