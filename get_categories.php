@@ -1,36 +1,35 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+error_reporting(0);
+ini_set('display_errors', 0);
 
-echo "PHP STARTED<br>";
-
+header("Content-Type: application/json; charset=UTF-8");
 require_once("connect2.php");
 
-echo "DATABASE CONNECT FILE LOADED<br>";
+$response = array("success" => false, "message" => "", "categories" => array());
 
-$sql = "
-SELECT 
-    category_id,
-    category_name
-FROM building_categories
-ORDER BY category_name ASC
-";
+try {
+    $sql = "SELECT category_id, category_name FROM building_categories WHERE status = TRUE ORDER BY category_name ASC";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-echo "QUERY CREATED<br>";
+    if(count($categories) > 0){
+        $response["success"] = true;
+        $response["message"] = "Categories loaded successfully.";
+        $response["categories"] = $categories;
+    }else{
+        $response["success"] = false;
+        $response["message"] = "No categories found.";
+    }
 
-$stmt = $pdo->prepare($sql);
+}catch(PDOException $e){
+    $response["success"] = false;
+    $response["message"] = "Database Error : ".$e->getMessage();
+  
+}catch(Exception $e){
+    $response["success"] = false;
+    $response["message"] = "Unexpected Error : ".$e->getMessage();
+}
 
-echo "QUERY PREPARED<br>";
-
-$stmt->execute();
-
-echo "QUERY EXECUTED<br>";
-
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-echo "<pre>";
-print_r($data);
-echo "</pre>";
-
-?>
+echo json_encode($response);
