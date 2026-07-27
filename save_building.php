@@ -21,7 +21,7 @@ try {
     $created_by = $_POST['created_by'];
 
   // Prevent duplicate building names
-    $check = $conn->prepare("SELECT building_id FROM buildings WHERE LOWER(building_name)=LOWER(?)"
+    $check = $conn->prepare("SELECT building_id FROM buildings WHERE LOWER(building_name)=LOWER(?)");
     $check->execute([$building_name]);
 
     if ($check->rowCount() > 0) {
