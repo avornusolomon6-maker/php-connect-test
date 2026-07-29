@@ -13,6 +13,7 @@ try {
     $sql = "SELECT
                 b.building_id,
                 b.building_name,
+                b.category_id,
                 bc.category_name,
                 b.description,
                 b.latitude,
