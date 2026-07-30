@@ -1,49 +1,84 @@
 <?php
 
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
+
 require_once "connect2.php";
 
-$response = [];
+$response = [
+    "success" => false,
+    "message" => ""
+];
+
 try {
+
     if (!isset($_POST["building_id"])) {
         throw new Exception("Building ID is required.");
     }
-    $building_id = $_POST["building_id"];
 
+    $buildingId = intval($_POST["building_id"]);
+
+    // GET BUILDING
     $sql = "SELECT
-                b.building_id,
-                b.building_name,
-                b.category_id,
-                bc.category_name,
-                b.description,
-                b.latitude,
-                b.longitude,
-                b.gps_accuracy,
-                b.location_quality,
-                b.created_at,
-                b.updated_at
-            FROM buildings b
-            INNER JOIN building_categories bc
-                ON b.category_id = bc.category_id
-            WHERE b.building_id = ?";
+            b.building_id,
+            b.building_name,
+            b.category_id,
+            bc.category_name,
+            b.description,
+            b.latitude,
+            b.longitude,
+            b.gps_accuracy,
+            b.location_quality,
+            b.created_by,
+            b.created_at,
+            b.updated_at
+        FROM buildings b
+
+        INNER JOIN building_categories bc
+            ON b.category_id = bc.category_id
+
+        WHERE b.building_id = ?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$building_id]);
+    $stmt->execute([$buildingId]);
 
-    if ($stmt->rowCount() > 0) {
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $response["success"] = true;
-        $response["building"] = $row;
+    $building = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // These will become real COUNT(*) queries later
-        $response["entrance_count"] = 0;
-        $response["floor_count"] = 0;
-        $response["office_count"] = 0;
-    } else {
-        $response["success"] = false;
+    if (!$building) {
         $response["message"] = "Building not found.";
+        echo json_encode($response);
+        exit;
     }
-} catch (Exception $e) {
+
+    // ENTRANCE COUNT
+    $entranceQuery = "
+        SELECT COUNT(*)
+        FROM building_entrances
+        WHERE building_id = ?";
+
+    $entranceStmt = $conn->prepare($entranceQuery);
+    $entranceStmt->execute([$buildingId]);
+
+    $entranceCount = (int) $entranceStmt->fetchColumn();
+    // FLOORS AND OFFICES
+    // These tables do not exist yet.
+    // They will be replaced with real COUNT queries
+    // when those tables are created.
+    $floorCount = 0;
+    $officeCount = 0;
+
+    // RESPONSE
+    $response["success"] = true;
+    $response["message"] = "Building details loaded successfully.";
+    $response["building"] = $building;
+    $response["entrance_count"] = $entranceCount;
+    $response["floor_count"] = $floorCount;
+    $response["office_count"] = $officeCount;
+}
+catch (PDOException $e) {
+    $response["success"] = false;
+    $response["message"] = "Database error: " . $e->getMessage();
+}
+catch (Exception $e) {
     $response["success"] = false;
     $response["message"] = $e->getMessage();
 }
