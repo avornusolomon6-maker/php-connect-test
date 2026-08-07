@@ -30,10 +30,7 @@ try {
     $longitude = doubleval($_POST["longitude"]);
     $gpsAccuracy = doubleval($_POST["gps_accuracy"]);
     $locationQuality = trim($_POST["location_quality"] ?? "");
-    $isMain = filter_var(
-            $_POST["is_main"] ?? false,
-            FILTER_VALIDATE_BOOLEAN
-        );
+    $isMain = boolean($_POST["is_main"]);
     $createdBy = trim($_POST["created_by"] ?? "admin");
 
     if ($buildingId <= 0) {
