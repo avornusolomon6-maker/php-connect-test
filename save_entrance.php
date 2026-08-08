@@ -30,7 +30,7 @@ try {
     $longitude = doubleval($_POST["longitude"]);
     $gpsAccuracy = doubleval($_POST["gps_accuracy"]);
     $locationQuality = trim($_POST["location_quality"] ?? "");
-    $isMain = boolean($_POST["is_main"]);
+    $isMain = trim($_POST["is_main"]);
     $createdBy = trim($_POST["created_by"] ?? "admin");
 
     if ($buildingId <= 0) {
@@ -44,7 +44,6 @@ try {
     if ($entranceType === "") {
         throw new Exception("Entrance type is required.");
     }
-
 
     // Make sure the building exists.
     $checkBuilding = $conn->prepare("SELECT building_id FROM buildings WHERE building_id = ?");
@@ -62,43 +61,11 @@ try {
         $resetMain->execute([$buildingId]);
     }
 
-    $sql = "INSERT INTO building_entrances
-        (
-            building_id,
-            entrance_name,
-            entrance_type,
-            description,
-            latitude,
-            longitude,
-            gps_accuracy,
-            location_quality,
-            is_main,
-            created_by
-        )
-        VALUES
-        (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-    ";
-
+    $sql = "INSERT INTO building_entrances(building_id, entrance_name, entrance_type, description, latitude, longitude, gps_accuracy, location_quality, is_main, created_by)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([
-
-        $buildingId,
-        $entranceName,
-        $entranceType,
-        $description,
-        $latitude,
-        $longitude,
-        $gpsAccuracy,
-        $locationQuality,
-        $isMain,
-        $createdBy
-
-    ]);
-
-
+    $stmt->execute([$buildingId, $entranceName, $entranceType, $description, $latitude, $longitude, $gpsAccuracy, $locationQuality, $isMain, $createdBy]);
     $conn->commit();
     $response["success"] = true;
     $response["message"] = "Entrance saved successfully.";
@@ -108,18 +75,14 @@ catch (PDOException $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-
     $response["message"] = "Database error: " . $e->getMessage();
-
 }
+    
 catch (Exception $e) {
-
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-
-    $response["message"] =
-        $e->getMessage();
+    $response["message"] = $e->getMessage();
 }
 
 echo json_encode($response);
