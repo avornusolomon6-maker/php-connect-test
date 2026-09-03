@@ -15,15 +15,22 @@ $care_plan_value = trim($_POST['care_plan_value'] ?? '');
 $examiner = trim($_POST['examiner'] ?? '');
 $session_no = trim($_POST['session_no'] ?? '');
 $program = trim($_POST['program'] ?? '');
+$module = trim($_POST['module'] ?? '');
 
-if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '' || $session_no === '' || $program === '') {
+if ($std_id === '' || $std_level === '' || $care_plan_value === '' || $examiner === '' || $session_no === '' || $program === '' || $module === '') {
     echo json_encode(["status" => "error", "message" => "All fields are required"]);
     exit;
 }
 
+$allowedModules = ['results', 'sandwich_results']; // actual module/table names
+
+if (!in_array($module, $allowedModules, true)) {
+    die('Invalid module');
+}
+
 try {
     // fetch existing result row
-    $stmt = $conn->prepare("SELECT * FROM results WHERE std_id = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT * FROM $module WHERE std_id = ? LIMIT 1");
     $stmt->execute([$std_id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -73,7 +80,7 @@ try {
         $add = $toInt($care_plan_value);
         $newScore = strval($currentScore + $add);
 
-        $update = $conn->prepare("UPDATE results SET std_score = ?, care_plan = ? WHERE std_id = ?");
+        $update = $conn->prepare("UPDATE $module SET std_score = ?, care_plan = ? WHERE std_id = ?");
         $ok = $update->execute([$newScore, "1", $std_id]);
 
         if ($ok && $update->rowCount() > 0) {
@@ -99,7 +106,7 @@ try {
             $add = $toInt($care_plan_value);
             $newScore = strval($currentScore + $add);
 
-            $update = $conn->prepare("UPDATE results SET std_score = ?, care_plan = ? WHERE std_id = ?");
+            $update = $conn->prepare("UPDATE $module SET std_score = ?, care_plan = ? WHERE std_id = ?");
             $ok = $update->execute([$newScore, "1", $std_id]);
 
             if ($ok && $update->rowCount() > 0) {
@@ -121,7 +128,7 @@ try {
             $add = $toInt($care_plan_value);
             $newScore2 = strval($currentScore2 + $add);
 
-            $update = $conn->prepare("UPDATE results SET std_score2 = ?, care_plan2 = ? WHERE std_id = ?");
+            $update = $conn->prepare("UPDATE $module SET std_score2 = ?, care_plan2 = ? WHERE std_id = ?");
             $ok = $update->execute([$newScore2, "1", $std_id]);
 
             if ($ok && $update->rowCount() > 0) {
