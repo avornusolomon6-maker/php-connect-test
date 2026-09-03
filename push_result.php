@@ -16,15 +16,21 @@ $taskNo        = $_POST['taskNo'] ?? '';
 $sessionNo     = $_POST['sessionNo'] ?? '';
 $scoreId       = $_POST['scoreId'] ?? '';
 $taskTitle     = $_POST['taskTitle'] ?? '';
+$module     = $_POST['module'] ?? '';
 
 if (empty($std_id)) {
     echo json_encode(["status" => "error", "message" => "Missing student ID"]);
     exit;
 }
+$allowedModules = ['results', 'sandwich_results']; // actual module/table names
+
+if (!in_array($module, $allowedModules, true)) {
+    die('Invalid module');
+}
 
 try {
     // check if already submitted
-    $stmt1 = $conn->prepare("SELECT * FROM results WHERE score_id = ? AND std_id = ?");
+    $stmt1 = $conn->prepare("SELECT * FROM $module WHERE score_id = ? AND std_id = ?");
     $stmt1->execute([$scoreId, $std_id]);
 
     if ($stmt1->rowCount() > 0) {
@@ -36,7 +42,7 @@ try {
     }
     
     // Step 1: Check if student already exists
-    $stmt = $conn->prepare("SELECT std_level, std_score, std_score2, std_examiner, std_examiner2, date, task1, task2 FROM results WHERE std_id = ?");
+    $stmt = $conn->prepare("SELECT std_level, std_score, std_score2, std_examiner, std_examiner2, date, task1, task2 FROM $module WHERE std_id = ?");
     $stmt->execute([$std_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -65,7 +71,7 @@ try {
                     $newScore = (float)$std_score;
                     $updatedScore = ((float)$result['std_score']) + $newScore;
                     $update = $conn->prepare("
-                        UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, time=CURRENT_TIME, score_id=?, task_title1=? WHERE std_id=?");                  
+                        UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, time=CURRENT_TIME, score_id=?, task_title1=? WHERE std_id=?");                  
                     $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $std_id, $taskTitle]);                    
                     
                     echo json_encode($ok ? 
@@ -76,7 +82,7 @@ try {
                     if ($result['task1'] < 1) {                        
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME, score_id=?, task_title=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);             
                         echo json_encode($ok ? 
@@ -91,7 +97,7 @@ try {
                         }                        
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME, score_id=?, task_title2=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);             
                         echo json_encode($ok ? 
@@ -113,7 +119,7 @@ try {
                     
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME, score_id=?, task_title1=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                    
                     
@@ -130,7 +136,7 @@ try {
                         }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
                         time2=CURRENT_TIME, score_id=?, task_title2=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                   
                         echo json_encode($ok ? 
@@ -145,7 +151,7 @@ try {
                     if ($result['task1'] < 1) {                    
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME, score_id=?, task_title1=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                    
                     
@@ -161,7 +167,7 @@ try {
                         }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score=?, task1=task1+1, std_facility=?, std_ward=?, std_examiner=?, date=CURRENT_DATE, 
                         time=CURRENT_TIME, score_id=?, task_title2=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                    
                     
@@ -178,7 +184,7 @@ try {
                         }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
                         time2=CURRENT_TIME, score_id=?, task_title3=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                    
                     
@@ -194,7 +200,7 @@ try {
                         }
                         $newScore = (float)$std_score;
                         $updatedScore = ((float)$result['std_score2']) + $newScore;
-                        $update = $conn->prepare("UPDATE results SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
+                        $update = $conn->prepare("UPDATE $module SET std_score2=?, task2=task2+1, std_facility2=?, std_ward2=?, std_examiner2=?, date2=CURRENT_DATE, 
                         time2=CURRENT_TIME, score_id=?, task_title4=? WHERE std_id=?");                  
                         $ok = $update->execute([$updatedScore, $std_facility, $std_ward, $std_examiner, $scoreId, $taskTitle, $std_id]);                    
                     
@@ -213,7 +219,7 @@ try {
     } else {
         // Step 4: Insert new result
         $taskNumber = 1;
-        $insert = $conn->prepare("INSERT INTO results 
+        $insert = $conn->prepare("INSERT INTO $module 
             (std_id, std_school, std_program, std_level, std_facility, std_ward, std_group, std_score, std_examiner, date, time, task1, score_id, task_title1)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?, ?)");
         $ok = $insert->execute([$std_id, $std_school, $std_program, $std_level, $std_facility, $std_ward, $std_group, $std_score, $std_examiner, $taskNumber, $scoreId, $taskTitle]);
