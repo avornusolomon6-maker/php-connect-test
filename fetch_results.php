@@ -14,9 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $examiner = isset($_POST['examiner']) ? trim($_POST['examiner']) : '';
-if ($examiner === '') {
-    echo json_encode(["success" => false, "message" => "Missing examiner parameter"]);
+$module = isset($_POST['module']) ? trim($_POST['module']) : '';
+if ($examiner === '' || $module === '') {
+    echo json_encode(["success" => false, "message" => "Missing required parameters"]);
     exit;
+}
+$allowedModules = ['results', 'sandwich_results'];
+if (!in_array($module, $allowedModules, true)) {
+    die('Invalid module');
 }
 
 // normalize for comparison
@@ -25,7 +30,7 @@ $examinerLower = mb_strtolower($examiner, 'UTF-8');
 try {
     $sql = "
         SELECT std_id, std_program, std_group, std_score, std_score2, std_examiner, std_examiner2, date, date2, care_plan, care_plan2, task1, task2, std_level
-        FROM results
+        FROM $module
         WHERE LOWER(std_examiner) = :examiner OR LOWER(std_examiner2) = :examiner ORDER BY COALESCE(date, date2) DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':examiner', $examinerLower, PDO::PARAM_STR);
