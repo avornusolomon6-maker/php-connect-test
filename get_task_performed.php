@@ -13,19 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$department = isset($_POST['department']) ? trim($_POST['department']) : '';
-if ($department === '') {
-    echo json_encode(["success" => false, "message" => "Missing department parameter"]);
+$module = isset($_POST['module']) ? trim($_POST['module']) : '';
+if ($module === '') {
+    echo json_encode(["success" => false, "message" => "Missing module parameter"]);
     exit;
 }
-
-// normalize for comparison Public Health Nursing(top up)
-$departmentLower = mb_strtolower($department, 'UTF-8');
-$tpDepartment = "$departmentLower(top up)";
+$allowedModules = ['results', 'sandwich_results'];
+if (!in_array($module, $allowedModules, true)) {
+    die('Invalid module');
+}
 
 try {
-    $stmt = $conn->prepare("SELECT std_id, task_title1, task_title2, task_title3, task_title4 FROM results WHERE LOWER(std_program) = ? OR LOWER(std_program) = ? ORDER BY COALESCE(date, date2) DESC");
-    $stmt->execute([$departmentLower, $tpDepartment]);
+    $stmt = $conn->prepare("SELECT std_id, task_title1, task_title2, task_title3, task_title4 FROM $module ORDER BY COALESCE(date, date2) DESC");
+    $stmt->execute();
 
     $rows = [];
 
