@@ -1,7 +1,7 @@
 <?php
 
 header("Content-Type: application/json; charset=UTF-8");
-require_once "connect2.php";
+require_once "connect.php";
 
 $response = [
     "success" => false,
