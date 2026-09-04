@@ -6,7 +6,8 @@ require_once "connect2.php";
 $response = [
     "success" => false,
     "message" => "",
-    "requests" => []
+    "requests" => [],
+    "empty" => false   // <-- new flag for Java to check
 ];
 
 try {
@@ -14,7 +15,11 @@ try {
         throw new Exception("Username is required.");
     }
 
-    $username = intval($_POST["username"]);
+    $username = trim($_POST["username"]);
+
+    if ($username === "") {
+        throw new Exception("Username cannot be empty.");
+    }
 
     $sql = "SELECT
             id,
@@ -23,11 +28,8 @@ try {
             status,
             completion_time
         FROM requests
-
         WHERE LOWER(username) = LOWER(?)
-
-        ORDER BY
-            request_time ASC";
+        ORDER BY request_time ASC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute([$username]);
@@ -35,8 +37,14 @@ try {
     $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $response["success"] = true;
-    $response["message"] = "Requests by $username loaded successfully.";
     $response["requests"] = $requests;
+
+    if (count($requests) === 0) {
+        $response["empty"] = true;
+        $response["message"] = "No requests found for $username.";
+    } else {
+        $response["message"] = "Requests by $username loaded successfully.";
+    }
 }
 catch (PDOException $e) {
     $response["message"] = "Database error: " . $e->getMessage();
