@@ -27,7 +27,7 @@ try {
             request_time,
             status,
             completion_time
-        FROM requests
+        FROM request
         WHERE LOWER(username) = LOWER(?)
         ORDER BY request_time ASC";
 
