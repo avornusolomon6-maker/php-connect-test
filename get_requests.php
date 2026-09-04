@@ -24,7 +24,7 @@ try {
             completion_time
         FROM requests
 
-        WHERE username = ?
+        WHERE LOWER(username) = LOWER(?)
 
         ORDER BY
             request_time ASC";
