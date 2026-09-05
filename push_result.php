@@ -42,13 +42,13 @@ try {
     }
     
     // Step 1: Check if student already exists
-    $stmt = $conn->prepare("SELECT std_level, std_score, std_score2, std_examiner, std_examiner2, date, task1, task2 FROM $module WHERE std_id = ?");
+    $stmt = $conn->prepare("SELECT std_program, std_level, std_score, std_score2, std_examiner, std_examiner2, date, task1, task2 FROM $module WHERE std_id = ?");
     $stmt->execute([$std_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result) {
-        // Step 2: Level check
-        if ($std_level !== $result['std_level']) {
+        // Step 2: Level and program check
+        if ($std_level !== $result['std_level'] || $std_program !== $result['std_program']) {
             echo json_encode(["status" => "error", "message" => "Student data does not match existing record"]);
             exit;
         }
