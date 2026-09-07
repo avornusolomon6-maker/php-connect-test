@@ -10,12 +10,23 @@ if (!isset($_GET['program']) || !isset($_GET['level'])) {
     exit;
 }
 
+$allowedTables = ['exams_settings', 'exams_settings_nocp']; // list every table this endpoint should ever be allowed to read
+$table = trim($_GET['table']);
+
+if (!in_array($table, $allowedTables, true)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Invalid table."
+    ]);
+    exit;
+}
+
 $program = trim($_GET['program']);
 $level  = trim($_GET['level']);
 
 try {
     $sql = "SELECT no_of_session, exams_percent, task_per_session, taskpercent_per_session 
-            FROM exams_settings 
+            FROM $table 
             WHERE program = ? AND level = ?";
 
     $stmt = $conn->prepare($sql);
