@@ -2,8 +2,20 @@
 header('Content-Type: application/json');
 require_once 'connect.php';
 
+$allowedTables = ['exams_settings', 'exams_settings_nocp']; // list every table this endpoint should ever be allowed to read
+
+$table = trim($_GET['table']);
+
+if (!in_array($table, $allowedTables, true)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Invalid table."
+    ]);
+    exit;
+}
+
 try {
-    $sql = "SELECT * FROM exams_settings";
+    $sql = "SELECT * FROM `$table`";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
