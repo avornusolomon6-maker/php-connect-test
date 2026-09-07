@@ -15,7 +15,7 @@ if (!in_array($table, $allowedTables, true)) {
 }
 
 try {
-    $sql = "SELECT * FROM `$table`";
+    $sql = "SELECT * FROM $table";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
