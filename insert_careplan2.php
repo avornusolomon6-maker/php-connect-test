@@ -65,7 +65,7 @@ try {
 
         // must be examined by std_examiner (exact match)
         if ($rowExam1 !== $examinerLower) {
-            echo json_encode(["status" => "error", "message" => "$std_id was examined by $rowExam1 not $examinerLower"]);
+            echo json_encode(["status" => "error", "message" => "$std_id was examined by $rowExam1 not $examinerLower, SessionNo = $session_no"]);
             exit;
         }
 
@@ -140,7 +140,7 @@ try {
             }
 
         } else {
-            echo json_encode(["status" => "error", "message" => "$std_id was examined by $rowExam1 and $rowExam2 not $examinerLower"]);
+            echo json_encode(["status" => "error", "message" => "$std_id was examined by $rowExam1 and $rowExam2 not $examinerLower, SessionNo = $session_no"]);
             exit;
         }
     } else {
